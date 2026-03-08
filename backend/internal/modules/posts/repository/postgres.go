@@ -29,7 +29,12 @@ func (r *PostgresRepo) FindBySlug(ctx context.Context, slug string) (*core.Post,
 		LEFT JOIN categories c ON c.id = p.category_id
 		WHERE p.slug = $1`
 	row := r.db.QueryRow(ctx, q, slug)
-	return scanPost(row)
+	post, err := scanPost(row)
+	if err != nil {
+		return nil, err
+	}
+	post.Tags, _ = r.findTagsByPostID(ctx, post.ID)
+	return post, nil
 }
 
 func (r *PostgresRepo) FindByID(ctx context.Context, id int64) (*core.Post, error) {
@@ -41,7 +46,12 @@ func (r *PostgresRepo) FindByID(ctx context.Context, id int64) (*core.Post, erro
 		LEFT JOIN categories c ON c.id = p.category_id
 		WHERE p.id = $1`
 	row := r.db.QueryRow(ctx, q, id)
-	return scanPost(row)
+	post, err := scanPost(row)
+	if err != nil {
+		return nil, err
+	}
+	post.Tags, _ = r.findTagsByPostID(ctx, post.ID)
+	return post, nil
 }
 
 func (r *PostgresRepo) List(ctx context.Context, filter core.ListFilter, p pagination.Params) ([]*core.Post, int64, error) {
@@ -107,20 +117,29 @@ func (r *PostgresRepo) List(ctx context.Context, filter core.ListFilter, p pagin
 		posts = append(posts, p)
 	}
 
+	for _, post := range posts {
+		post.Tags, _ = r.findTagsByPostID(ctx, post.ID)
+	}
+
 	return posts, total, nil
 }
 
 func (r *PostgresRepo) Create(ctx context.Context, req core.CreatePostRequest, authorID int64) (*core.Post, error) {
+	var publishedAt interface{} = nil
+	if req.Status == core.StatusPublished {
+		publishedAt = time.Now()
+	}
+
 	const q = `
-		INSERT INTO posts (title, slug, summary, content_md, cover_url, status, category_id, author_id)
-		VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+		INSERT INTO posts (title, slug, summary, content_md, cover_url, status, published_at, category_id, author_id)
+		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
 		RETURNING id, created_at, updated_at`
 
 	var id int64
 	var createdAt, updatedAt time.Time
 	err := r.db.QueryRow(ctx, q,
 		req.Title, req.Slug, req.Summary, req.ContentMD,
-		req.CoverURL, string(req.Status), req.CategoryID, authorID,
+		req.CoverURL, string(req.Status), publishedAt, req.CategoryID, authorID,
 	).Scan(&id, &createdAt, &updatedAt)
 	if err != nil {
 		if strings.Contains(err.Error(), "duplicate key") {
@@ -129,22 +148,24 @@ func (r *PostgresRepo) Create(ctx context.Context, req core.CreatePostRequest, a
 		return nil, fmt.Errorf("create post: %w", err)
 	}
 
-	// Sync tags
-	if len(req.TagIDs) > 0 {
-		_ = r.syncTags(ctx, id, req.TagIDs)
-	}
+	_ = r.syncTags(ctx, id, req.TagIDs)
 
 	return r.FindByID(ctx, id)
 }
 
 func (r *PostgresRepo) Update(ctx context.Context, id int64, req core.UpdatePostRequest) (*core.Post, error) {
+	var publishedAt interface{} = nil
+	if req.Status == core.StatusPublished {
+		publishedAt = time.Now()
+	}
+
 	const q = `
 		UPDATE posts SET title=$1, slug=$2, summary=$3, content_md=$4, cover_url=$5,
-		                 status=$6, category_id=$7, updated_at=NOW()
-		WHERE id=$8`
+		                 status=$6, published_at=COALESCE($7, published_at), category_id=$8, updated_at=NOW()
+		WHERE id=$9`
 	_, err := r.db.Exec(ctx, q,
 		req.Title, req.Slug, req.Summary, req.ContentMD,
-		req.CoverURL, string(req.Status), req.CategoryID, id,
+		req.CoverURL, string(req.Status), publishedAt, req.CategoryID, id,
 	)
 	if err != nil {
 		return nil, fmt.Errorf("update post: %w", err)
@@ -178,6 +199,24 @@ func (r *PostgresRepo) syncTags(ctx context.Context, postID int64, tagIDs []int6
 	return nil
 }
 
+func (r *PostgresRepo) findTagsByPostID(ctx context.Context, postID int64) ([]core.Tag, error) {
+	const q = `SELECT t.id, t.name, t.slug FROM tags t
+	            JOIN post_tags pt ON pt.tag_id = t.id WHERE pt.post_id = $1 ORDER BY t.name`
+	rows, err := r.db.Query(ctx, q, postID)
+	if err != nil {
+		return []core.Tag{}, err
+	}
+	defer rows.Close()
+	tags := []core.Tag{}
+	for rows.Next() {
+		var t core.Tag
+		if err := rows.Scan(&t.ID, &t.Name, &t.Slug); err == nil {
+			tags = append(tags, t)
+		}
+	}
+	return tags, nil
+}
+
 type scannable interface {
 	Scan(dest ...any) error
 }
@@ -192,5 +231,6 @@ func scanPost(row scannable) (*core.Post, error) {
 	if err != nil {
 		return nil, sherrors.ErrNotFound
 	}
+	p.Tags = []core.Tag{}
 	return &p, nil
 }

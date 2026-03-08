@@ -11,14 +11,16 @@ import (
 	"github.com/yavon007/blog-dev/backend/internal/pkg/middleware"
 	"github.com/yavon007/blog-dev/backend/internal/pkg/pagination"
 	"github.com/yavon007/blog-dev/backend/internal/pkg/response"
+	"go.uber.org/zap"
 )
 
 type Handler struct {
 	svc *core.Service
+	log *zap.Logger
 }
 
-func NewHandler(svc *core.Service) *Handler {
-	return &Handler{svc: svc}
+func NewHandler(svc *core.Service, log *zap.Logger) *Handler {
+	return &Handler{svc: svc, log: log}
 }
 
 func (h *Handler) RegisterPublic(rg *gin.RouterGroup) {
@@ -45,6 +47,7 @@ func (h *Handler) ListPublic(c *gin.Context) {
 	}
 	posts, total, err := h.svc.ListPublic(c.Request.Context(), filter, p)
 	if err != nil {
+		h.log.Error("list public posts failed", zap.Error(err))
 		response.InternalError(c)
 		return
 	}
@@ -59,6 +62,7 @@ func (h *Handler) ListAdmin(c *gin.Context) {
 	}
 	posts, total, err := h.svc.ListAdmin(c.Request.Context(), filter, p)
 	if err != nil {
+		h.log.Error("list admin posts failed", zap.Error(err))
 		response.InternalError(c)
 		return
 	}
@@ -104,12 +108,17 @@ func (h *Handler) Create(c *gin.Context) {
 	}
 
 	claims := middleware.GetClaims(c)
+	if claims == nil {
+		response.Unauthorized(c)
+		return
+	}
 	post, err := h.svc.Create(c.Request.Context(), req, claims.AdminID)
 	if err != nil {
 		if errors.Is(err, sherrors.ErrConflict) {
 			response.Conflict(c, "slug already exists")
 			return
 		}
+		h.log.Error("create post failed", zap.Error(err))
 		response.InternalError(c)
 		return
 	}
@@ -133,6 +142,7 @@ func (h *Handler) Update(c *gin.Context) {
 			response.NotFound(c, "post not found")
 			return
 		}
+		h.log.Error("update post failed", zap.Error(err))
 		response.InternalError(c)
 		return
 	}

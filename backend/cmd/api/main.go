@@ -64,7 +64,7 @@ func main() {
 	// Wire modules: posts
 	postsRepo := postsrepo.NewPostgresRepo(db)
 	postsSvc := postscore.NewService(postsRepo)
-	postsHandler := postshttp.NewHandler(postsSvc)
+	postsHandler := postshttp.NewHandler(postsSvc, log)
 
 	// Wire modules: taxonomy
 	taxonomyRepo := taxonomyrepo.NewPostgresRepo(db)
