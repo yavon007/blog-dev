@@ -1,0 +1,24 @@
+# Git
+.git
+.gitignore
+
+# 开发环境
+.env
+.env.*
+!.env.example
+
+# 构建产物
+bin/
+tmp/
+coverage.out
+
+# 文档
+docs/
+*.md
+
+# IDE
+.idea/
+.vscode/
+
+# 测试
+**/*_test.go

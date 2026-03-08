@@ -1,0 +1,25 @@
+# Git
+.git
+.gitignore
+
+# 依赖（构建时重新安装）
+node_modules/
+
+# 开发产物
+dist/
+.vite/
+
+# 环境变量
+.env
+.env.*
+!.env.example
+
+# 配置文件（不进入镜像，由 nginx.conf 覆盖）
+# nginx.conf 需要进入镜像
+
+# IDE
+.idea/
+.vscode/
+
+# 文档
+*.md

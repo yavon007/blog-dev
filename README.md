@@ -32,46 +32,63 @@ blog-dev/
 
 - Go 1.23+
 - Node.js 20+ / pnpm 9+
-- Docker & Docker Compose
-- PostgreSQL 16（或使用 docker-compose）
+- Docker & Docker Compose 2.20+
 
 ### 使用 docker-compose 启动（推荐）
 
 ```bash
-# 复制环境变量配置
-cp backend/.env.example backend/.env
+# 1. 初始化环境变量
+make init-env
+# 编辑 .env，填写 POSTGRES_PASSWORD 和 JWT_SECRET
 
-# 启动所有服务（postgres、redis、backend、frontend）
-docker compose up -d
+# 2. 启动所有服务
+make prod
 
-# 查看日志
-docker compose logs -f
+# 3. 查看状态
+make ps
+make logs
 ```
 
 访问：
-- 前台博客：http://localhost:5173
-- 后台管理：http://localhost:5173/admin
+- 前台博客：http://localhost
+- 后台管理：http://localhost/admin
 - 后端 API：http://localhost:8080
 
 ### 本地开发
+
+**启动基础设施（数据库 + 缓存）：**
+
+```bash
+make init-env   # 首次使用
+make dev        # 启动 postgres + redis
+```
 
 **后端：**
 
 ```bash
 cd backend
-cp .env.example .env     # 配置数据库等环境变量
-make deps                # 安装依赖
-make migrate-up          # 执行数据库迁移
-make run                 # 启动开发服务器（:8080）
+cp .env.example .env   # 配置本地数据库连接
+make deps               # 安装依赖
+make migrate-up         # 执行数据库迁移
+make run                # 启动开发服务器（:8080）
 ```
 
 **前端：**
 
 ```bash
 cd frontend
-pnpm install             # 安装依赖
-pnpm dev                 # 启动开发服务器（:5173）
+pnpm install   # 安装依赖
+pnpm dev       # 启动开发服务器（:5173）
 ```
+
+### 生产部署
+
+详细指南见 [docs/deployment.md](./docs/deployment.md)，包含：
+
+- HTTPS / SSL 证书配置（Caddy / Nginx + Certbot）
+- 防火墙安全加固
+- 数据库自动备份
+- 健康监控脚本
 
 ## 功能特性
 
@@ -92,6 +109,7 @@ pnpm dev                 # 启动开发服务器（:5173）
 - [API 文档](./docs/api.md)
 - [数据库设计](./docs/database.md)
 - [系统架构](./docs/architecture.md)
+- [生产部署指南](./docs/deployment.md)
 
 ## License
 
