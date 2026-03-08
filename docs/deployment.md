@@ -8,6 +8,7 @@
 - [安全加固](#安全加固)
 - [备份与恢复](#备份与恢复)
 - [监控与日志](#监控与日志)
+- [代码更新与重新部署](#代码更新与重新部署)
 - [常见问题](#常见问题)
 
 ---
@@ -398,6 +399,60 @@ done
 ```bash
 # 每 5 分钟检查一次
 echo "*/5 * * * * root /opt/blog/scripts/health-check.sh" >> /etc/crontab
+```
+
+---
+
+## 代码更新与重新部署
+
+### 1. 拉取最新代码
+
+```bash
+cd /opt/blog
+git pull origin main
+```
+
+### 2. 重新构建并更新所有服务
+
+```bash
+make prod
+# 等价于：docker compose up -d --build
+```
+
+Docker Compose 会自动重建有变更的镜像，未变更的服务保持运行，**无需手动停止**。
+
+### 3. 仅更新后端（前端无改动时）
+
+```bash
+docker compose up -d --build backend
+```
+
+### 4. 执行数据库迁移（如有新迁移文件）
+
+```bash
+make migrate-up
+# 等价于：docker compose run --rm migrate
+```
+
+> 迁移操作幂等，重复执行不会造成数据损坏。
+
+### 5. 验证更新结果
+
+```bash
+make ps
+curl http://localhost:8080/api/v1/health
+# 预期：{"status":"ok"}
+```
+
+### 6. 回滚（更新失败时）
+
+```bash
+# 查看提交历史
+git log --oneline -10
+
+# 回滚到指定版本
+git checkout <commit-hash>
+make prod
 ```
 
 ---
