@@ -22,8 +22,9 @@ func NewPostgresRepo(db *pgxpool.Pool) *PostgresRepo {
 
 func (r *PostgresRepo) FindBySlug(ctx context.Context, slug string) (*core.Post, error) {
 	const q = `
-		SELECT p.id, p.title, p.slug, p.summary, p.content_md, p.content_html_cached,
-		       p.cover_url, p.status, p.published_at, p.category_id,
+		SELECT p.id, p.title, p.slug, COALESCE(p.summary, ''), p.content_md,
+		       COALESCE(p.content_html_cached, ''), COALESCE(p.cover_url, ''),
+		       p.status, p.published_at, p.category_id,
 		       COALESCE(c.name, ''), p.author_id, p.created_at, p.updated_at
 		FROM posts p
 		LEFT JOIN categories c ON c.id = p.category_id
@@ -39,8 +40,9 @@ func (r *PostgresRepo) FindBySlug(ctx context.Context, slug string) (*core.Post,
 
 func (r *PostgresRepo) FindByID(ctx context.Context, id int64) (*core.Post, error) {
 	const q = `
-		SELECT p.id, p.title, p.slug, p.summary, p.content_md, p.content_html_cached,
-		       p.cover_url, p.status, p.published_at, p.category_id,
+		SELECT p.id, p.title, p.slug, COALESCE(p.summary, ''), p.content_md,
+		       COALESCE(p.content_html_cached, ''), COALESCE(p.cover_url, ''),
+		       p.status, p.published_at, p.category_id,
 		       COALESCE(c.name, ''), p.author_id, p.created_at, p.updated_at
 		FROM posts p
 		LEFT JOIN categories c ON c.id = p.category_id
@@ -95,8 +97,9 @@ func (r *PostgresRepo) List(ctx context.Context, filter core.ListFilter, p pagin
 
 	args = append(args, p.Size, p.Offset())
 	listQ := fmt.Sprintf(`
-		SELECT p.id, p.title, p.slug, p.summary, p.content_md, p.content_html_cached,
-		       p.cover_url, p.status, p.published_at, p.category_id,
+		SELECT p.id, p.title, p.slug, COALESCE(p.summary, ''), p.content_md,
+		       COALESCE(p.content_html_cached, ''), COALESCE(p.cover_url, ''),
+		       p.status, p.published_at, p.category_id,
 		       COALESCE(c.name, ''), p.author_id, p.created_at, p.updated_at
 		FROM posts p
 		LEFT JOIN categories c ON c.id = p.category_id
