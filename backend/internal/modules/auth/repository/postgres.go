@@ -7,8 +7,8 @@ import (
 
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
-	"github.com/yourblog/backend/internal/modules/auth/core"
-	sherrors "github.com/yourblog/backend/internal/modules/shared/errors"
+	"github.com/yavon007/blog-dev/backend/internal/modules/auth/core"
+	sherrors "github.com/yavon007/blog-dev/backend/internal/modules/shared/errors"
 )
 
 type PostgresRepo struct {

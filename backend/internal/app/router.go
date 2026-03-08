@@ -4,12 +4,12 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	authhttp "github.com/yourblog/backend/internal/modules/auth/transport/http"
-	commentshttp "github.com/yourblog/backend/internal/modules/comments/transport/http"
-	postshttp "github.com/yourblog/backend/internal/modules/posts/transport/http"
-	taxonomyhttp "github.com/yourblog/backend/internal/modules/taxonomy/transport/http"
-	"github.com/yourblog/backend/internal/pkg/middleware"
-	"github.com/yourblog/backend/internal/platform/auth"
+	authhttp "github.com/yavon007/blog-dev/backend/internal/modules/auth/transport/http"
+	commentshttp "github.com/yavon007/blog-dev/backend/internal/modules/comments/transport/http"
+	postshttp "github.com/yavon007/blog-dev/backend/internal/modules/posts/transport/http"
+	taxonomyhttp "github.com/yavon007/blog-dev/backend/internal/modules/taxonomy/transport/http"
+	"github.com/yavon007/blog-dev/backend/internal/pkg/middleware"
+	"github.com/yavon007/blog-dev/backend/internal/platform/auth"
 	"go.uber.org/zap"
 )
 

@@ -4,8 +4,8 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/yourblog/backend/internal/pkg/pagination"
-	sherrors "github.com/yourblog/backend/internal/modules/shared/errors"
+	"github.com/yavon007/blog-dev/backend/internal/pkg/pagination"
+	sherrors "github.com/yavon007/blog-dev/backend/internal/modules/shared/errors"
 )
 
 type Repository interface {

@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	sherrors "github.com/yourblog/backend/internal/modules/shared/errors"
+	sherrors "github.com/yavon007/blog-dev/backend/internal/modules/shared/errors"
 )
 
 type Repository interface {

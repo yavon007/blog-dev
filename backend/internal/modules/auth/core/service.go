@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/yourblog/backend/internal/platform/auth"
-	sherrors "github.com/yourblog/backend/internal/modules/shared/errors"
+	"github.com/yavon007/blog-dev/backend/internal/platform/auth"
+	sherrors "github.com/yavon007/blog-dev/backend/internal/modules/shared/errors"
 	"golang.org/x/crypto/bcrypt"
 )
 

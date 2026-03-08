@@ -1,4 +1,4 @@
-module github.com/yourblog/backend
+module github.com/yavon007/blog-dev/backend
 
 go 1.26.1
 

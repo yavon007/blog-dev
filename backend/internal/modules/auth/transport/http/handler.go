@@ -4,9 +4,9 @@ import (
 	"errors"
 
 	"github.com/gin-gonic/gin"
-	"github.com/yourblog/backend/internal/modules/auth/core"
-	sherrors "github.com/yourblog/backend/internal/modules/shared/errors"
-	"github.com/yourblog/backend/internal/pkg/response"
+	"github.com/yavon007/blog-dev/backend/internal/modules/auth/core"
+	sherrors "github.com/yavon007/blog-dev/backend/internal/modules/shared/errors"
+	"github.com/yavon007/blog-dev/backend/internal/pkg/response"
 )
 
 type Handler struct {

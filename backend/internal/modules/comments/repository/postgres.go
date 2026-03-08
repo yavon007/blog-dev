@@ -5,9 +5,9 @@ import (
 	"fmt"
 
 	"github.com/jackc/pgx/v5/pgxpool"
-	"github.com/yourblog/backend/internal/modules/comments/core"
-	"github.com/yourblog/backend/internal/pkg/pagination"
-	sherrors "github.com/yourblog/backend/internal/modules/shared/errors"
+	"github.com/yavon007/blog-dev/backend/internal/modules/comments/core"
+	"github.com/yavon007/blog-dev/backend/internal/pkg/pagination"
+	sherrors "github.com/yavon007/blog-dev/backend/internal/modules/shared/errors"
 )
 
 type PostgresRepo struct {

@@ -5,7 +5,7 @@ import (
 	"fmt"
 
 	"github.com/redis/go-redis/v9"
-	"github.com/yourblog/backend/internal/config"
+	"github.com/yavon007/blog-dev/backend/internal/config"
 )
 
 func NewClient(cfg config.RedisConfig) (*redis.Client, error) {

@@ -4,8 +4,8 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
-	"github.com/yourblog/backend/internal/pkg/response"
-	"github.com/yourblog/backend/internal/platform/auth"
+	"github.com/yavon007/blog-dev/backend/internal/pkg/response"
+	"github.com/yavon007/blog-dev/backend/internal/platform/auth"
 )
 
 const AdminClaimsKey = "admin_claims"
