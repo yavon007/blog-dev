@@ -87,11 +87,34 @@ docker compose exec postgres psql -U blog -d blog -c "
 "
 ```
 
-也可以用以下 Go 一行命令生成 bcrypt 哈希：
+也可以用 Python 一行命令生成 bcrypt 哈希（更简便）：
 
 ```bash
-docker run --rm golang:1.23-alpine sh -c \
-  'go run -e "import \"golang.org/x/crypto/bcrypt\"; func main() { h,_:=bcrypt.GenerateFromPassword([]byte(\"yourpassword\"),12); println(string(h)) }"'
+docker run --rm python:3-alpine sh -c \
+  'pip install bcrypt -q && python3 -c "import bcrypt; print(bcrypt.hashpw(b\"yourpassword\", bcrypt.gensalt(12)).decode())"'
+```
+
+或使用 Go（需要联网下载依赖）：
+
+```bash
+docker run --rm golang:1.26-alpine sh -c '
+  cd $(mktemp -d) &&
+  go mod init tmp &&
+  cat > main.go <<'"'"'GOEOF'"'"'
+package main
+
+import (
+    "fmt"
+    "golang.org/x/crypto/bcrypt"
+)
+
+func main() {
+    h, _ := bcrypt.GenerateFromPassword([]byte("yourpassword"), 12)
+    fmt.Println(string(h))
+}
+GOEOF
+  go get golang.org/x/crypto/bcrypt &&
+  go run .'
 ```
 
 ### 4. 启动所有服务
