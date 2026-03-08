@@ -11,15 +11,15 @@ const (
 )
 
 type Comment struct {
-	ID              int64
-	PostID          int64
-	ParentCommentID *int64
-	AuthorName      string
-	AuthorEmail     string
-	Body            string
-	Status          CommentStatus
-	CreatedAt       time.Time
-	UpdatedAt       time.Time
+	ID              int64         `json:"id"`
+	PostID          int64         `json:"post_id"`
+	ParentCommentID *int64        `json:"parent_comment_id"`
+	AuthorName      string        `json:"author_name"`
+	AuthorEmail     string        `json:"author_email"`
+	Body            string        `json:"body"`
+	Status          CommentStatus `json:"status"`
+	CreatedAt       time.Time     `json:"created_at"`
+	UpdatedAt       time.Time     `json:"updated_at"`
 }
 
 type CreateCommentRequest struct {
