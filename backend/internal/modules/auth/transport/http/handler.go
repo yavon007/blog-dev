@@ -17,10 +17,14 @@ func NewHandler(svc *core.Service) *Handler {
 	return &Handler{svc: svc}
 }
 
-func (h *Handler) Register(rg *gin.RouterGroup) {
+func (h *Handler) RegisterPublic(rg *gin.RouterGroup) {
 	auth := rg.Group("/auth")
 	auth.POST("/login", h.Login)
 	auth.POST("/refresh", h.Refresh)
+}
+
+func (h *Handler) RegisterAdmin(rg *gin.RouterGroup) {
+	auth := rg.Group("/auth")
 	auth.POST("/logout", h.Logout)
 }
 

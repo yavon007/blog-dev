@@ -45,13 +45,14 @@ func NewRouter(
 		h.Posts.RegisterPublic(public)
 		h.Taxonomy.RegisterPublic(public)
 		h.Comments.RegisterPublic(public)
+		h.Auth.RegisterPublic(public) // login, refresh
 	}
 
 	// Admin API (JWT protected)
 	admin := r.Group("/api/v1/admin")
 	admin.Use(middleware.JWT(jwtMgr))
 	{
-		h.Auth.Register(admin)
+		h.Auth.RegisterAdmin(admin) // logout
 		h.Posts.RegisterAdmin(admin)
 		h.Taxonomy.RegisterAdmin(admin)
 		h.Comments.RegisterAdmin(admin)
