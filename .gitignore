@@ -1,0 +1,40 @@
+# ===========================
+# General
+# ===========================
+.DS_Store
+.env
+.env.local
+.env.*.local
+*.log
+
+# ===========================
+# Go Backend
+# ===========================
+backend/bin/
+backend/tmp/
+backend/vendor/
+backend/configs/secrets/
+backend/*.out
+backend/coverage.out
+
+# ===========================
+# Frontend
+# ===========================
+frontend/node_modules/
+frontend/dist/
+frontend/.vite/
+frontend/coverage/
+
+# ===========================
+# Docker / Dev
+# ===========================
+postgres-data/
+redis-data/
+
+# ===========================
+# IDE
+# ===========================
+.idea/
+.vscode/
+*.swp
+*.swo
