@@ -1,12 +1,11 @@
 <script setup lang="ts">
-import { ref, onMounted, defineAsyncComponent } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { MdEditor } from 'md-editor-v3'
+import 'md-editor-v3/lib/style.css'
 import { postApi } from '@/api/post'
 import { categoryApi, tagApi } from '@/api/taxonomy'
 import type { Category, Tag, CreatePostPayload } from '@/types'
-
-// 懒加载 Markdown 编辑器，避免影响前台首屏
-const MdEditor = defineAsyncComponent(() => import('md-editor-v3').then(m => ({ default: m.MdEditor })))
 
 const route = useRoute()
 const router = useRouter()
@@ -126,16 +125,11 @@ onMounted(fetchData)
         </div>
 
         <!-- Markdown 编辑器 -->
-        <Suspense>
-          <MdEditor
-            v-model="form.content_md"
-            style="height: 500px"
-            preview-theme="github"
-          />
-          <template #fallback>
-            <div class="card p-8 text-center text-gray-400">编辑器加载中...</div>
-          </template>
-        </Suspense>
+        <MdEditor
+          v-model="form.content_md"
+          style="height: 500px"
+          preview-theme="github"
+        />
       </div>
 
       <!-- 右侧设置 -->
