@@ -3,11 +3,11 @@ import type { ApiResponse, TokenPair } from '@/types'
 
 export const authApi = {
   login(email: string, password: string) {
-    return request.post<ApiResponse<TokenPair>>('/admin/auth/login', { email, password })
+    return request.post<ApiResponse<TokenPair>>('/auth/login', { email, password })
   },
 
   refresh(refreshToken: string) {
-    return request.post<ApiResponse<TokenPair>>('/admin/auth/refresh', { refresh_token: refreshToken })
+    return request.post<ApiResponse<TokenPair>>('/auth/refresh', { refresh_token: refreshToken })
   },
 
   logout(refreshToken: string) {
