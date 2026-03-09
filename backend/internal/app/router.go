@@ -28,6 +28,16 @@ func NewRouter(
 ) *gin.Engine {
 	r := gin.New()
 
+	// 配置可信代理，正确获取客户端 IP
+	// 信任所有私有网络代理（Docker 内部网络）
+	r.SetTrustedProxies([]string{
+		"10.0.0.0/8",     // Docker 默认网络
+		"172.16.0.0/12",  // Docker 默认网络
+		"192.168.0.0/16", // 私有网络
+		"127.0.0.1",      // 本地
+		"::1",            // 本地 IPv6
+	})
+
 	// Global middleware
 	r.Use(middleware.RequestID())
 	r.Use(middleware.Recovery(log))
