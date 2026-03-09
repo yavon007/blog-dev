@@ -122,7 +122,7 @@ onMounted(fetchPost)
           >
             <div class="flex items-center gap-2 mb-2">
               <span class="font-medium text-sm">{{ comment.author_name }}</span>
-              <time class="text-xs text-gray-500" :datetime="comment.created_at">
+              <time class="text-xs text-gray-500 dark:text-gray-400" :datetime="comment.created_at">
                 {{ formatDate(comment.created_at) }}
               </time>
             </div>

@@ -1,20 +1,28 @@
 <script setup lang="ts">
-import { RouterLink, RouterView } from 'vue-router'
+import { RouterLink, RouterView, useRoute } from 'vue-router'
 import { useUserStore } from '@/store/user'
 import { useAppStore } from '@/store/app'
 import { authApi } from '@/api/auth'
 
 const userStore = useUserStore()
-
 const appStore = useAppStore()
+const route = useRoute()
 
 const navItems = [
-  { to: '/admin', label: '仪表盘', icon: 'i-carbon-dashboard', exact: true },
+  { to: '/admin', label: '仪表盘', icon: 'i-carbon-dashboard' },
   { to: '/admin/posts', label: '文章', icon: 'i-carbon-document' },
   { to: '/admin/categories', label: '分类', icon: 'i-carbon-folder' },
   { to: '/admin/tags', label: '标签', icon: 'i-carbon-tag' },
   { to: '/admin/comments', label: '评论', icon: 'i-carbon-chat' },
 ]
+
+// 判断是否激活：仪表盘需要精确匹配，其他前缀匹配
+function isActive(item: { to: string }) {
+  if (item.to === '/admin') {
+    return route.path === '/admin'
+  }
+  return route.path.startsWith(item.to)
+}
 
 async function handleLogout() {
   try {
@@ -46,10 +54,8 @@ async function handleLogout() {
           v-for="item in navItems"
           :key="item.to"
           :to="item.to"
-          :exact="item.exact"
           class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors hover:bg-gray-100 dark:hover:bg-gray-700"
-          active-class="bg-primary-50 text-primary-700 dark:bg-primary-900/20 dark:text-primary-400"
-          inactive-class="text-gray-600 dark:text-gray-300"
+          :class="isActive(item) ? 'bg-primary-50 text-primary-700 dark:bg-primary-900/20 dark:text-primary-400' : 'text-gray-600 dark:text-gray-300'"
         >
           <span :class="item.icon" class="text-lg flex-shrink-0" />
           {{ item.label }}
