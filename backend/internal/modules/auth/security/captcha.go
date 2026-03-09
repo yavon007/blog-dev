@@ -7,6 +7,7 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/redis/go-redis/v9"
@@ -99,8 +100,8 @@ func (s *CaptchaService) Validate(ctx context.Context, id, code, email, ip strin
 		return ErrCaptchaInvalid
 	}
 
-	// Verify answer
-	if hashAnswer(code) != meta.Hash {
+	// Verify answer (case-insensitive, convert to uppercase)
+	if hashAnswer(strings.ToUpper(code)) != meta.Hash {
 		return ErrCaptchaInvalid
 	}
 
