@@ -110,9 +110,6 @@ services:
       - "${FRONTEND_PORT:-80}:80"
     networks:
       - external
-    depends_on:
-      backend:
-        condition: service_healthy
     restart: unless-stopped
     deploy:
       resources:
