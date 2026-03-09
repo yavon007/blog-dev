@@ -26,6 +26,8 @@ func NewHandler(svc *core.Service, log *zap.Logger) *Handler {
 func (h *Handler) RegisterPublic(rg *gin.RouterGroup) {
 	rg.GET("/posts", h.ListPublic)
 	rg.GET("/posts/:slug", h.GetBySlug)
+	rg.GET("/posts/archive", h.GetArchive)
+	rg.GET("/posts/archive/:year/:month", h.ListByYearMonth)
 }
 
 func (h *Handler) RegisterAdmin(rg *gin.RouterGroup) {
@@ -186,4 +188,32 @@ func (h *Handler) Delete(c *gin.Context) {
 		return
 	}
 	response.OK(c, nil)
+}
+
+func (h *Handler) GetArchive(c *gin.Context) {
+	items, err := h.svc.GetArchive(c.Request.Context())
+	if err != nil {
+		h.log.Error("get archive failed", zap.Error(err))
+		response.InternalError(c)
+		return
+	}
+	response.OK(c, items)
+}
+
+func (h *Handler) ListByYearMonth(c *gin.Context) {
+	year, err1 := strconv.Atoi(c.Param("year"))
+	month, err2 := strconv.Atoi(c.Param("month"))
+	if err1 != nil || err2 != nil || year < 2000 || month < 1 || month > 12 {
+		response.BadRequest(c, "invalid year or month")
+		return
+	}
+
+	p := pagination.FromQuery(c)
+	posts, total, err := h.svc.ListByYearMonth(c.Request.Context(), year, month, p)
+	if err != nil {
+		h.log.Error("list posts by year/month failed", zap.Error(err))
+		response.InternalError(c)
+		return
+	}
+	response.Paged(c, posts, total, p.Page, p.Size)
 }

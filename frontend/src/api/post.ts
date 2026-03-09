@@ -1,6 +1,12 @@
 import request from '@/utils/request'
 import type { ApiResponse, PagedData, Post, PostListFilter, CreatePostPayload } from '@/types'
 
+export interface ArchiveItem {
+  year: number
+  month: number
+  count: number
+}
+
 export const postApi = {
   // 公开接口
   list(filter: PostListFilter = {}) {
@@ -9,6 +15,16 @@ export const postApi = {
 
   getBySlug(slug: string) {
     return request.get<ApiResponse<Post>>(`/posts/${slug}`)
+  },
+
+  getArchive() {
+    return request.get<ApiResponse<ArchiveItem[]>>('/posts/archive')
+  },
+
+  listByYearMonth(year: number, month: number, page = 1, pageSize = 10) {
+    return request.get<ApiResponse<PagedData<Post>>>(`/posts/archive/${year}/${month}`, {
+      params: { page, page_size: pageSize },
+    })
   },
 
   // 管理接口

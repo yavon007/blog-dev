@@ -22,6 +22,16 @@ const routes: RouteRecordRaw[] = [
         name: 'Tags',
         component: () => import('@/views/front/TagsView.vue'),
       },
+      {
+        path: 'archive',
+        name: 'Archive',
+        component: () => import('@/views/front/ArchiveView.vue'),
+      },
+      {
+        path: 'archive/:year/:month',
+        name: 'ArchiveMonth',
+        component: () => import('@/views/front/ArchiveMonthView.vue'),
+      },
     ],
   },
 
@@ -65,6 +75,11 @@ const routes: RouteRecordRaw[] = [
         path: 'comments',
         name: 'Comments',
         component: () => import('@/views/admin/CommentView.vue'),
+      },
+      {
+        path: 'media',
+        name: 'Media',
+        component: () => import('@/views/admin/MediaView.vue'),
       },
     ],
   },

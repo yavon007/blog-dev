@@ -237,3 +237,74 @@ func scanPost(row scannable) (*core.Post, error) {
 	p.Tags = []core.Tag{}
 	return &p, nil
 }
+
+func (r *PostgresRepo) GetArchive(ctx context.Context) ([]core.ArchiveItem, error) {
+	const q = `
+		SELECT
+			EXTRACT(YEAR FROM published_at)::int AS year,
+			EXTRACT(MONTH FROM published_at)::int AS month,
+			COUNT(*) as count
+		FROM posts
+		WHERE status = 'published' AND published_at IS NOT NULL
+		GROUP BY year, month
+		ORDER BY year DESC, month DESC
+	`
+	rows, err := r.db.Query(ctx, q)
+	if err != nil {
+		return nil, fmt.Errorf("get archive: %w", err)
+	}
+	defer rows.Close()
+
+	var items []core.ArchiveItem
+	for rows.Next() {
+		var item core.ArchiveItem
+		if err := rows.Scan(&item.Year, &item.Month, &item.Count); err != nil {
+			continue
+		}
+		items = append(items, item)
+	}
+	return items, nil
+}
+
+func (r *PostgresRepo) ListByYearMonth(ctx context.Context, year, month int, p pagination.Params) ([]*core.Post, int64, error) {
+	countQ := `SELECT COUNT(*) FROM posts WHERE status = 'published' AND published_at IS NOT NULL
+	           AND EXTRACT(YEAR FROM published_at)::int = $1 AND EXTRACT(MONTH FROM published_at)::int = $2`
+	var total int64
+	if err := r.db.QueryRow(ctx, countQ, year, month).Scan(&total); err != nil {
+		return nil, 0, fmt.Errorf("count posts by year/month: %w", err)
+	}
+
+	listQ := `
+		SELECT p.id, p.title, p.slug, COALESCE(p.summary, ''), p.content_md,
+		       COALESCE(p.content_html_cached, ''), COALESCE(p.cover_url, ''),
+		       p.status, p.published_at, p.category_id,
+		       COALESCE(c.name, ''), p.author_id, p.created_at, p.updated_at
+		FROM posts p
+		LEFT JOIN categories c ON c.id = p.category_id
+		WHERE p.status = 'published' AND p.published_at IS NOT NULL
+		  AND EXTRACT(YEAR FROM p.published_at)::int = $1
+		  AND EXTRACT(MONTH FROM p.published_at)::int = $2
+		ORDER BY p.published_at DESC
+		LIMIT $3 OFFSET $4
+	`
+	rows, err := r.db.Query(ctx, listQ, year, month, p.Size, p.Offset())
+	if err != nil {
+		return nil, 0, fmt.Errorf("list posts by year/month: %w", err)
+	}
+	defer rows.Close()
+
+	var posts []*core.Post
+	for rows.Next() {
+		p, err := scanPost(rows)
+		if err != nil {
+			continue
+		}
+		posts = append(posts, p)
+	}
+
+	for _, post := range posts {
+		post.Tags, _ = r.findTagsByPostID(ctx, post.ID)
+	}
+
+	return posts, total, nil
+}

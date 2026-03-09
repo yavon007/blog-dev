@@ -21,6 +21,9 @@ const appStore = useAppStore()
           <RouterLink to="/tags" class="text-sm font-medium hover:text-primary-600 dark:hover:text-primary-400 transition-colors">
             标签
           </RouterLink>
+          <RouterLink to="/archive" class="text-sm font-medium hover:text-primary-600 dark:hover:text-primary-400 transition-colors">
+            归档
+          </RouterLink>
         </nav>
 
         <div class="flex items-center gap-3">

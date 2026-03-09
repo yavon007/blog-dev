@@ -19,6 +19,10 @@ import (
 	commentscore "github.com/yavon007/blog-dev/backend/internal/modules/comments/core"
 	commentsrepo "github.com/yavon007/blog-dev/backend/internal/modules/comments/repository"
 	commentshttp "github.com/yavon007/blog-dev/backend/internal/modules/comments/transport/http"
+	mediacore "github.com/yavon007/blog-dev/backend/internal/modules/media/core"
+	mediarepo "github.com/yavon007/blog-dev/backend/internal/modules/media/repository"
+	mediahttp "github.com/yavon007/blog-dev/backend/internal/modules/media/transport/http"
+	"github.com/yavon007/blog-dev/backend/internal/modules/media/storage"
 	postscore "github.com/yavon007/blog-dev/backend/internal/modules/posts/core"
 	postsrepo "github.com/yavon007/blog-dev/backend/internal/modules/posts/repository"
 	postshttp "github.com/yavon007/blog-dev/backend/internal/modules/posts/transport/http"
@@ -93,12 +97,22 @@ func main() {
 	commentsSvc := commentscore.NewService(commentsRepo)
 	commentsHandler := commentshttp.NewHandler(commentsSvc)
 
+	// Wire modules: media
+	mediaRepo := mediarepo.NewPostgresRepo(db)
+	mediaStorage, err := storage.NewLocalStorage("./uploads", cfg.App.BaseURL)
+	if err != nil {
+		log.Fatal("init media storage", zap.Error(err))
+	}
+	mediaSvc := mediacore.NewService(mediaRepo, mediaStorage, cfg.App.BaseURL)
+	mediaHandler := mediahttp.NewHandler(mediaSvc, log)
+
 	// Router
 	router := app.NewRouter(log, jwtMgr, cfg.App.AllowedOrigins, app.Handlers{
 		Auth:     authHandler,
 		Posts:    postsHandler,
 		Taxonomy: taxonomyHandler,
 		Comments: commentsHandler,
+		Media:    mediaHandler,
 	})
 
 	// HTTP Server

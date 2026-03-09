@@ -109,3 +109,22 @@ export interface CreateTagPayload {
     name: string
     slug: string
 }
+
+export interface MediaFile {
+    id: number
+    filename: string
+    original_name: string
+    mime_type: string
+    size: number
+    width: number | null
+    height: number | null
+    alt_text: string
+    url: string
+    created_at: string
+}
+
+export interface UploadResult {
+    id: number
+    url: string
+    filename: string
+}

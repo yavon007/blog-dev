@@ -6,6 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 	authhttp "github.com/yavon007/blog-dev/backend/internal/modules/auth/transport/http"
 	commentshttp "github.com/yavon007/blog-dev/backend/internal/modules/comments/transport/http"
+	mediahttp "github.com/yavon007/blog-dev/backend/internal/modules/media/transport/http"
 	postshttp "github.com/yavon007/blog-dev/backend/internal/modules/posts/transport/http"
 	taxonomyhttp "github.com/yavon007/blog-dev/backend/internal/modules/taxonomy/transport/http"
 	"github.com/yavon007/blog-dev/backend/internal/pkg/middleware"
@@ -18,6 +19,7 @@ type Handlers struct {
 	Posts    *postshttp.Handler
 	Taxonomy *taxonomyhttp.Handler
 	Comments *commentshttp.Handler
+	Media    *mediahttp.Handler
 }
 
 func NewRouter(
@@ -49,6 +51,9 @@ func NewRouter(
 		c.JSON(http.StatusOK, gin.H{"status": "ok"})
 	})
 
+	// Static files for uploads
+	r.Static("/uploads", "./uploads")
+
 	// Public API
 	public := r.Group("/api/v1")
 	{
@@ -66,6 +71,7 @@ func NewRouter(
 		h.Posts.RegisterAdmin(admin)
 		h.Taxonomy.RegisterAdmin(admin)
 		h.Comments.RegisterAdmin(admin)
+		h.Media.RegisterAdmin(admin)
 	}
 
 	return r

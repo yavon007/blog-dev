@@ -65,3 +65,10 @@ type ListFilter struct {
 	Query    string
 	Status   PostStatus // empty = all (admin), "published" (public)
 }
+
+// ArchiveItem represents a year-month archive group
+type ArchiveItem struct {
+	Year  int `json:"year"`
+	Month int `json:"month"`
+	Count int `json:"count"`
+}

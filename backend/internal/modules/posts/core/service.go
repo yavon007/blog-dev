@@ -16,6 +16,8 @@ type Repository interface {
 	Update(ctx context.Context, id int64, req UpdatePostRequest) (*Post, error)
 	UpdateStatus(ctx context.Context, id int64, status PostStatus) error
 	Delete(ctx context.Context, id int64) error
+	GetArchive(ctx context.Context) ([]ArchiveItem, error)
+	ListByYearMonth(ctx context.Context, year, month int, p pagination.Params) ([]*Post, int64, error)
 }
 
 type Service struct {
@@ -77,4 +79,12 @@ func (s *Service) Delete(ctx context.Context, id int64) error {
 		return sherrors.ErrNotFound
 	}
 	return s.repo.Delete(ctx, id)
+}
+
+func (s *Service) GetArchive(ctx context.Context) ([]ArchiveItem, error) {
+	return s.repo.GetArchive(ctx)
+}
+
+func (s *Service) ListByYearMonth(ctx context.Context, year, month int, p pagination.Params) ([]*Post, int64, error) {
+	return s.repo.ListByYearMonth(ctx, year, month, p)
 }
