@@ -23,6 +23,7 @@ async function loadCaptcha() {
     const res = await request.get<unknown, { data: CaptchaResponse }>(`/auth/captcha?email=${encodeURIComponent(form.value.email)}`)
     captchaId.value = res.data.id
     captchaImg.value = res.data.image
+    form.value.captcha = '' // 清空输入
   } catch {
     error.value = '无法加载验证码，请刷新重试'
   }
@@ -50,18 +51,30 @@ async function handleLogin() {
       const data = e.data as { captcha_required?: boolean } | undefined
       if (data?.captcha_required) {
         requireCaptcha.value = true
-        form.value.captcha = ''
         await loadCaptcha()
         error.value = '登录失败次数过多，请输入验证码'
         return
       }
     }
-    // 其他错误
-    if (e instanceof ApiError && e.status === 401) {
-      error.value = '邮箱或密码错误'
-    } else {
-      error.value = e instanceof Error ? e.message : '登录失败，请检查账号密码'
+
+    // 验证码错误 (HTTP 400) - 刷新验证码
+    if (e instanceof ApiError && e.status === 400 && requireCaptcha.value) {
+      await loadCaptcha()
+      error.value = '验证码错误或已过期，请重新输入'
+      return
     }
+
+    // 密码错误 (HTTP 401) - 如果需要验证码，也要刷新
+    if (e instanceof ApiError && e.status === 401) {
+      if (requireCaptcha.value) {
+        await loadCaptcha()
+      }
+      error.value = '邮箱或密码错误'
+      return
+    }
+
+    // 其他错误
+    error.value = e instanceof Error ? e.message : '登录失败，请检查账号密码'
   } finally {
     loading.value = false
   }
