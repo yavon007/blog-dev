@@ -1,5 +1,7 @@
 # CLAUDE.md — AI 开发规范
 
+> 最后更新：2026-03-09
+
 本文档为 AI 助手（Claude Code 等）在此项目中工作的规范约束。
 
 ## 项目概述
@@ -7,6 +9,54 @@
 前后端分离博客系统：
 - **前端**：`frontend/` — Vue 3 + TypeScript + Vite + UnoCSS
 - **后端**：`backend/` — Go + Gin + PostgreSQL + Redis
+
+## 架构总览
+
+```
+┌─────────────────┐     ┌─────────────────┐
+│   Frontend      │     │    Backend      │
+│   (Vue 3)       │────▶│    (Go/Gin)     │
+│   :5173         │     │    :8080        │
+└─────────────────┘     └────────┬────────┘
+                                 │
+                    ┌────────────┼────────────┐
+                    ▼            ▼            ▼
+              ┌──────────┐ ┌──────────┐ ┌──────────┐
+              │PostgreSQL│ │  Redis   │ │  JWT     │
+              │   :5432  │ │   :6379  │ │  Auth    │
+              └──────────┘ └──────────┘ └──────────┘
+```
+
+## 模块结构图
+
+```mermaid
+graph TD
+    A["(根) blog-dev"] --> B["backend"]
+    A --> C["frontend"]
+
+    B --> B1["cmd/api"]
+    B --> B2["internal/modules"]
+    B --> B3["internal/platform"]
+    B2 --> B2a["auth"]
+    B2 --> B2b["posts"]
+    B2 --> B2c["taxonomy"]
+    B2 --> B2d["comments"]
+
+    C --> C1["src/views/front"]
+    C --> C2["src/views/admin"]
+    C --> C3["src/api"]
+    C --> C4["src/store"]
+
+    click B "./backend/CLAUDE.md" "查看 backend 模块文档"
+    click C "./frontend/CLAUDE.md" "查看 frontend 模块文档"
+```
+
+## 模块索引
+
+| 模块 | 路径 | 语言 | 入口 | 职责 |
+|------|------|------|------|------|
+| Backend | `backend/` | Go | `cmd/api/main.go` | RESTful API 服务 |
+| Frontend | `frontend/` | TypeScript/Vue | `src/main.ts` | 用户界面 |
 
 ## 架构约束
 
@@ -82,7 +132,33 @@
 - 每个 `.up.sql` 必须有对应的 `.down.sql`（回滚操作）
 - 禁止修改已执行的迁移文件，需要变更则新增迁移
 
-## 常用命令
+## 运行与开发
+
+### 开发环境
+
+```bash
+# 1. 启动数据库和缓存
+make dev
+
+# 2. 启动后端（新终端）
+cd backend && make run
+
+# 3. 启动前端（新终端）
+cd frontend && pnpm dev
+```
+
+### 生产部署
+
+```bash
+# 初始化环境变量
+make init-env
+# 编辑 .env 文件，填写必要配置
+
+# 启动所有服务
+make prod
+```
+
+### 常用命令
 
 ```bash
 # 后端
@@ -101,3 +177,79 @@ docker compose up -d            # 启动所有服务
 docker compose down             # 停止所有服务
 docker compose logs -f backend  # 查看后端日志
 ```
+
+## 测试策略
+
+### 当前状态
+
+| 模块 | 单元测试 | 集成测试 | E2E 测试 |
+|------|----------|----------|----------|
+| Backend | 缺失 | 缺失 | - |
+| Frontend | 缺失 | 缺失 | 缺失 |
+
+### 建议补充
+
+1. **后端单元测试**
+   - `backend/internal/modules/*/repository/*_test.go`
+   - `backend/internal/modules/*/core/*_test.go`
+
+2. **前端单元测试**
+   - 配置 Vitest
+   - `frontend/src/api/*.spec.ts`
+   - `frontend/src/store/*.spec.ts`
+
+## 编码规范
+
+### Git 提交规范
+
+```
+feat: 新功能
+fix: 修复 bug
+docs: 文档更新
+refactor: 重构
+test: 测试相关
+chore: 构建/工具相关
+```
+
+### 代码风格
+
+- Go: 使用 `golangci-lint`
+- TypeScript: 遵循 `strict` 模式
+- 命名：驼峰式（TS）、下划线（Go/SQL）
+
+## AI 使用指引
+
+### 工作前必读
+
+1. 阅读本文档了解项目约束
+2. 阅读相关模块的 `CLAUDE.md`
+3. 检查 `.claude/index.json` 了解项目结构
+
+### 代码修改原则
+
+1. 遵循现有架构约束，不随意跨层调用
+2. 新增功能需同时更新文档
+3. 敏感信息只写入 `.env`
+4. 数据库变更必须创建迁移文件
+
+### 常见任务
+
+**添加新的 API 端点**：
+1. 在 `internal/modules/<module>/core/entity.go` 定义 DTO
+2. 在 `internal/modules/<module>/core/service.go` 添加业务逻辑
+3. 在 `internal/modules/<module>/repository/postgres.go` 添加数据访问
+4. 在 `internal/modules/<module>/transport/http/handler.go` 添加处理函数
+5. 在 `internal/app/router.go` 注册路由
+
+**添加新的前端页面**：
+1. 在 `src/types/index.ts` 定义类型
+2. 在 `src/api/` 添加 API 调用
+3. 在 `src/views/` 创建页面组件
+4. 在 `src/router/index.ts` 注册路由
+
+## 变更记录 (Changelog)
+
+| 日期 | 变更 |
+|------|------|
+| 2026-03-09 | 生成项目架构文档，添加模块结构图，更新运行指引 |
+| - | 初始版本：AI 开发规范 |

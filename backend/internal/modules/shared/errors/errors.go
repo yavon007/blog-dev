@@ -3,10 +3,12 @@ package errors
 import "errors"
 
 var (
-	ErrNotFound      = errors.New("not found")
-	ErrUnauthorized  = errors.New("unauthorized")
-	ErrForbidden     = errors.New("forbidden")
-	ErrConflict      = errors.New("conflict")
-	ErrBadRequest    = errors.New("bad request")
-	ErrInvalidToken  = errors.New("invalid token")
+	ErrNotFound        = errors.New("not found")
+	ErrUnauthorized    = errors.New("unauthorized")
+	ErrForbidden       = errors.New("forbidden")
+	ErrConflict        = errors.New("conflict")
+	ErrBadRequest       = errors.New("bad request")
+	ErrInvalidToken     = errors.New("invalid token")
+	ErrCaptchaRequired  = errors.New("captcha required")
+	ErrCaptchaInvalid   = errors.New("captcha invalid or expired")
 )

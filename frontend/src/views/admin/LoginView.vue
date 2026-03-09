@@ -9,19 +9,50 @@ const router = useRouter()
 const route = useRoute()
 const userStore = useUserStore()
 
-const form = ref({ email: '', password: '' })
+const form = ref({ email: '', password: '', captcha: '' })
 const loading = ref(false)
 const error = ref('')
+const requireCaptcha = ref(false)
+const captchaId = ref('')
+const captchaImg = ref('')
+
+const MAX_FAILED_ATTEMPTS = 3
+const failedAttempts = ref(0)
+
+async function loadCaptcha() {
+  try {
+    const res = await authApi.getCaptcha() as unknown as { data: { id: string; image: string } }
+    captchaId.value = res.data.id
+    captchaImg.value = res.data.image
+  } catch (e) {
+    error.value = '无法加载验证码，请刷新重试'
+  }
+}
 
 async function handleLogin() {
   loading.value = true
   error.value = ''
   try {
-    const res = await authApi.login(form.value.email, form.value.password) as unknown as { data: TokenPair }
+    const payload: { email: string; password: string; captcha_id?: string; captcha_code?: string } = {
+      email: form.value.email,
+      password: form.value.password,
+    }
+    if (requireCaptcha.value) {
+      payload.captcha_id = captchaId.value
+      payload.captcha_code = form.value.captcha
+    }
+    const res = await authApi.login(payload) as unknown as { data: TokenPair }
+    failedAttempts.value = 0 // Reset on success
     userStore.setTokens(res.data)
     const redirect = (route.query.redirect as string) ?? '/admin'
     router.push(redirect)
   } catch (e) {
+    failedAttempts.value++
+    if (failedAttempts.value >= MAX_FAILED_ATTEMPTS) {
+      requireCaptcha.value = true
+      form.value.captcha = ''
+      await loadCaptcha()
+    }
     error.value = e instanceof Error ? e.message : '登录失败，请检查账号密码'
   } finally {
     loading.value = false
@@ -65,6 +96,31 @@ async function handleLogin() {
               placeholder="••••••••"
             />
           </div>
+
+          <!-- 验证码区域 -->
+          <div v-if="requireCaptcha" class="animate-fade-in">
+            <label class="block text-sm font-medium mb-1.5">验证码</label>
+            <div class="flex items-center gap-3">
+              <input
+                v-model="form.captcha"
+                type="text"
+                required
+                maxlength="6"
+                autocomplete="off"
+                class="input-base flex-1"
+                placeholder="请输入6位验证码"
+              />
+              <img
+                v-if="captchaImg"
+                :src="captchaImg"
+                @click="loadCaptcha"
+                class="h-10 w-28 rounded cursor-pointer hover:opacity-80 transition-opacity border border-gray-200 dark:border-gray-700"
+                alt="图形验证码，点击刷新"
+                title="点击刷新验证码"
+              />
+            </div>
+          </div>
+
           <button
             type="submit"
             :disabled="loading"
@@ -77,3 +133,13 @@ async function handleLogin() {
     </div>
   </div>
 </template>
+
+<style scoped>
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-in;
+}
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+</style>

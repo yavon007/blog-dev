@@ -1,0 +1,78 @@
+{
+  "timestamp": "2026-03-09T20:27:47+08:00",
+  "rootPath": "/Users/evlan/Desktop/work/blog-dev",
+  "modules": [
+    {
+      "path": "backend",
+      "language": "Go",
+      "entry": "cmd/api/main.go",
+      "interfaces": [
+        "internal/modules/*/transport/http/handler.go"
+      ],
+      "tests": [],
+      "importantPaths": [
+        "internal/app/router.go",
+        "internal/config/loader.go",
+        "internal/platform/database/postgres.go",
+        "internal/platform/auth/jwt_manager.go",
+        "internal/modules/posts",
+        "internal/modules/auth",
+        "internal/modules/taxonomy",
+        "internal/modules/comments",
+        "migrations"
+      ],
+      "coverage": {
+        "entry": true,
+        "interfaces": true,
+        "tests": false,
+        "dataModel": true
+      }
+    },
+    {
+      "path": "frontend",
+      "language": "TypeScript/Vue",
+      "entry": "src/main.ts",
+      "interfaces": [
+        "src/api/*.ts"
+      ],
+      "tests": [],
+      "importantPaths": [
+        "src/router/index.ts",
+        "src/store/user.ts",
+        "src/store/app.ts",
+        "src/utils/request.ts",
+        "src/types/index.ts",
+        "src/views/front",
+        "src/views/admin",
+        "src/layouts"
+      ],
+      "coverage": {
+        "entry": true,
+        "interfaces": true,
+        "tests": false,
+        "dataModel": true
+      }
+    }
+  ],
+  "fileStats": {
+    "estimatedTotal": 80,
+    "scanned": 65,
+    "coveragePercent": 81,
+    "ignored": [
+      "node_modules",
+      "dist",
+      ".git",
+      "*.log",
+      "*.lock"
+    ]
+  },
+  "gaps": {
+    "backend": [
+      "No unit tests found (*_test.go)"
+    ],
+    "frontend": [
+      "No test files found (*.spec.ts, *.test.ts)"
+    ]
+  },
+  "truncated": false
+}

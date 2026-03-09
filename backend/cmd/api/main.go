@@ -9,10 +9,12 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/redis/go-redis/v9"
 	"github.com/yavon007/blog-dev/backend/internal/app"
 	"github.com/yavon007/blog-dev/backend/internal/config"
 	"github.com/yavon007/blog-dev/backend/internal/modules/auth/core"
 	authrepo "github.com/yavon007/blog-dev/backend/internal/modules/auth/repository"
+	"github.com/yavon007/blog-dev/backend/internal/modules/auth/security"
 	authhttp "github.com/yavon007/blog-dev/backend/internal/modules/auth/transport/http"
 	commentscore "github.com/yavon007/blog-dev/backend/internal/modules/comments/core"
 	commentsrepo "github.com/yavon007/blog-dev/backend/internal/modules/comments/repository"
@@ -53,13 +55,28 @@ func main() {
 	}
 	defer db.Close()
 
+	// Redis
+	rdb := redis.NewClient(&redis.Options{
+		Addr:     cfg.Redis.Addr,
+		Password: cfg.Redis.Password,
+		DB:       cfg.Redis.DB,
+	})
+	if err := rdb.Ping(ctx).Err(); err != nil {
+		log.Fatal("connect redis", zap.Error(err))
+	}
+	defer rdb.Close()
+
 	// JWT Manager
 	jwtMgr := auth.NewManager(cfg.JWT)
 
+	// Security services
+	loginGuard := security.NewLoginGuard(rdb, cfg.Security)
+	captchaSvc := security.NewCaptchaService(rdb, cfg.Security)
+
 	// Wire modules: auth
 	authRepo := authrepo.NewPostgresRepo(db)
-	authSvc := core.NewService(authRepo, jwtMgr)
-	authHandler := authhttp.NewHandler(authSvc)
+	authSvc := core.NewService(authRepo, jwtMgr, loginGuard, captchaSvc)
+	authHandler := authhttp.NewHandler(authSvc, captchaSvc)
 
 	// Wire modules: posts
 	postsRepo := postsrepo.NewPostgresRepo(db)

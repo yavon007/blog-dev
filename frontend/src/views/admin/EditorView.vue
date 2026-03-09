@@ -62,7 +62,7 @@ async function fetchData() {
       cover_url: post.cover_url,
       status: post.status,
       category_id: post.category_id,
-      tag_ids: post.tags?.map((t) => t.id) ?? [],
+      tag_ids: post.tags?.map((t: { id: number }) => t.id) ?? [],
     }
   }
 }
@@ -174,7 +174,7 @@ onMounted(fetchData)
                 @change="(e) => {
                   const checked = (e.target as HTMLInputElement).checked
                   if (checked) form.tag_ids.push(tag.id)
-                  else form.tag_ids = form.tag_ids.filter(id => id !== tag.id)
+                  else form.tag_ids = form.tag_ids.filter((id: number) => id !== tag.id)
                 }"
               />
               <span class="text-sm">{{ tag.name }}</span>

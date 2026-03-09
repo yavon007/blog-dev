@@ -10,11 +10,12 @@ import (
 )
 
 type Config struct {
-	App      AppConfig
-	Database DatabaseConfig
-	Redis    RedisConfig
-	JWT      JWTConfig
+	App       AppConfig
+	Database  DatabaseConfig
+	Redis     RedisConfig
+	JWT       JWTConfig
 	RateLimit RateLimitConfig
+	Security  SecurityConfig
 }
 
 type AppConfig struct {
@@ -50,6 +51,12 @@ type RateLimitConfig struct {
 	AdminRPS  int
 }
 
+type SecurityConfig struct {
+	LoginFailThreshold int           // 失败次数阈值
+	LoginFailTTL       time.Duration // 失败计数有效期
+	CaptchaTTL         time.Duration // 验证码有效期
+}
+
 func Load() (*Config, error) {
 	// Load .env file if exists (ignore error in production)
 	_ = godotenv.Load()
@@ -82,6 +89,11 @@ func Load() (*Config, error) {
 		RateLimit: RateLimitConfig{
 			PublicRPS: getEnvInt("RATE_LIMIT_PUBLIC_RPS", 20),
 			AdminRPS:  getEnvInt("RATE_LIMIT_ADMIN_RPS", 5),
+		},
+		Security: SecurityConfig{
+			LoginFailThreshold: getEnvInt("SECURITY_LOGIN_FAIL_THRESHOLD", 3),
+			LoginFailTTL:       getEnvDuration("SECURITY_LOGIN_FAIL_TTL", 15*time.Minute),
+			CaptchaTTL:         getEnvDuration("SECURITY_CAPTCHA_TTL", 5*time.Minute),
 		},
 	}
 
