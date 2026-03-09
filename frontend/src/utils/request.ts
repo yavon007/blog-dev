@@ -2,6 +2,21 @@ import axios, { type AxiosError, type AxiosResponse } from 'axios'
 import { useUserStore } from '@/store/user'
 import type { ApiResponse } from '@/types'
 
+// 自定义错误类，保留响应数据
+export class ApiError extends Error {
+  status: number
+  code: number
+  data?: unknown
+
+  constructor(message: string, status: number, code: number, data?: unknown) {
+    super(message)
+    this.name = 'ApiError'
+    this.status = status
+    this.code = code
+    this.data = data
+  }
+}
+
 const request = axios.create({
   baseURL: '/api/v1',
   timeout: 10000,
@@ -32,8 +47,10 @@ request.interceptors.response.use(
       const userStore = useUserStore()
       userStore.logout()
     }
-    const message = error.response?.data?.message ?? error.message
-    return Promise.reject(new Error(message))
+    const { status, data } = error.response ?? {}
+    const message = data?.message ?? error.message
+    const code = data?.code ?? status ?? 0
+    return Promise.reject(new ApiError(message, status ?? 0, code, data?.data))
   },
 )
 

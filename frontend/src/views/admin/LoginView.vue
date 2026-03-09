@@ -3,7 +3,8 @@ import { ref } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useUserStore } from '@/store/user'
 import { authApi } from '@/api/auth'
-import type { TokenPair } from '@/types'
+import request, { ApiError } from '@/utils/request'
+import type { TokenPair, CaptchaResponse } from '@/types'
 
 const router = useRouter()
 const route = useRoute()
@@ -16,15 +17,13 @@ const requireCaptcha = ref(false)
 const captchaId = ref('')
 const captchaImg = ref('')
 
-const MAX_FAILED_ATTEMPTS = 3
-const failedAttempts = ref(0)
-
 async function loadCaptcha() {
   try {
-    const res = await authApi.getCaptcha() as unknown as { data: { id: string; image: string } }
+    // 验证码需要传 email 参数
+    const res = await request.get<unknown, { data: CaptchaResponse }>(`/auth/captcha?email=${encodeURIComponent(form.value.email)}`)
     captchaId.value = res.data.id
     captchaImg.value = res.data.image
-  } catch (e) {
+  } catch {
     error.value = '无法加载验证码，请刷新重试'
   }
 }
@@ -42,18 +41,27 @@ async function handleLogin() {
       payload.captcha_code = form.value.captcha
     }
     const res = await authApi.login(payload) as unknown as { data: TokenPair }
-    failedAttempts.value = 0 // Reset on success
     userStore.setTokens(res.data)
     const redirect = (route.query.redirect as string) ?? '/admin'
     router.push(redirect)
   } catch (e) {
-    failedAttempts.value++
-    if (failedAttempts.value >= MAX_FAILED_ATTEMPTS) {
-      requireCaptcha.value = true
-      form.value.captcha = ''
-      await loadCaptcha()
+    // 检查是否需要验证码 (HTTP 428)
+    if (e instanceof ApiError && e.status === 428) {
+      const data = e.data as { captcha_required?: boolean } | undefined
+      if (data?.captcha_required) {
+        requireCaptcha.value = true
+        form.value.captcha = ''
+        await loadCaptcha()
+        error.value = '登录失败次数过多，请输入验证码'
+        return
+      }
     }
-    error.value = e instanceof Error ? e.message : '登录失败，请检查账号密码'
+    // 其他错误
+    if (e instanceof ApiError && e.status === 401) {
+      error.value = '邮箱或密码错误'
+    } else {
+      error.value = e instanceof Error ? e.message : '登录失败，请检查账号密码'
+    }
   } finally {
     loading.value = false
   }
