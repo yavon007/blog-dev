@@ -84,15 +84,15 @@ onMounted(fetchTags)
           class="flex items-center gap-2 px-3 py-1.5 bg-gray-100 dark:bg-gray-700 rounded-full"
         >
           <span class="text-sm">#{{ tag.name }}</span>
-          <span class="text-xs text-gray-500">({{ tag.post_count ?? 0 }})</span>
-          <button class="text-gray-400 hover:text-primary-500" @click="openEdit(tag)">
+          <span class="text-xs text-gray-500 dark:text-gray-400">({{ tag.post_count ?? 0 }})</span>
+          <button class="text-gray-400 dark:text-gray-500 hover:text-primary-500 dark:hover:text-primary-400" @click="openEdit(tag)">
             <span class="i-carbon-edit text-xs" />
           </button>
-          <button class="text-gray-400 hover:text-red-500" @click="deleteTag(tag.id)">
+          <button class="text-gray-400 dark:text-gray-500 hover:text-red-500 dark:hover:text-red-400" @click="deleteTag(tag.id)">
             <span class="i-carbon-close text-xs" />
           </button>
         </div>
-        <div v-if="tags.length === 0" class="text-gray-400 text-sm">暂无标签</div>
+        <div v-if="tags.length === 0" class="text-gray-400 dark:text-gray-500 text-sm">暂无标签</div>
       </div>
     </div>
   </div>

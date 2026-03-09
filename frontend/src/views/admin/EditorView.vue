@@ -120,7 +120,7 @@ onMounted(fetchData)
         </div>
 
         <div class="card p-4">
-          <label class="block text-xs text-gray-500 mb-1">slug（URL路径）</label>
+          <label class="block text-xs text-gray-500 dark:text-gray-400 mb-1">slug（URL路径）</label>
           <input v-model="form.slug" type="text" placeholder="post-slug" class="input-base text-sm" />
         </div>
 

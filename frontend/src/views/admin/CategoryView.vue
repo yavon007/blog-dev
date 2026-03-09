@@ -91,8 +91,8 @@ onMounted(fetchCategories)
         <tbody class="divide-y divide-gray-100 dark:divide-gray-700">
           <tr v-for="cat in categories" :key="cat.id" class="hover:bg-gray-50 dark:hover:bg-gray-700/30">
             <td class="px-4 py-3 font-medium">{{ cat.name }}</td>
-            <td class="px-4 py-3 text-gray-500 font-mono text-xs">{{ cat.slug }}</td>
-            <td class="px-4 py-3 text-gray-500">{{ cat.post_count ?? 0 }}</td>
+            <td class="px-4 py-3 text-gray-500 dark:text-gray-400 font-mono text-xs">{{ cat.slug }}</td>
+            <td class="px-4 py-3 text-gray-500 dark:text-gray-400">{{ cat.post_count ?? 0 }}</td>
             <td class="px-4 py-3 text-right">
               <button class="p-1.5 hover:bg-gray-100 dark:hover:bg-gray-700 rounded mr-1" @click="openEdit(cat)">
                 <span class="i-carbon-edit text-base" />

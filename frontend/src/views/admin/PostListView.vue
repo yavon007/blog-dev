@@ -99,7 +99,7 @@ onMounted(fetchPosts)
     <!-- 分页 -->
     <div v-if="total > 15" class="flex justify-center gap-2 mt-4">
       <button :disabled="page <= 1" class="btn-secondary disabled:opacity-40" @click="page--; fetchPosts()">上一页</button>
-      <span class="px-4 py-2 text-sm text-gray-600">{{ page }} / {{ Math.ceil(total / 15) }}</span>
+      <span class="px-4 py-2 text-sm text-gray-600 dark:text-gray-400">{{ page }} / {{ Math.ceil(total / 15) }}</span>
       <button :disabled="page >= Math.ceil(total / 15)" class="btn-secondary disabled:opacity-40" @click="page++; fetchPosts()">下一页</button>
     </div>
   </div>

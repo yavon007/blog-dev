@@ -81,8 +81,8 @@ onMounted(fetchComments)
           <div class="flex-1 min-w-0">
             <div class="flex items-center gap-2 flex-wrap mb-1">
               <span class="font-medium text-sm">{{ comment.author_name }}</span>
-              <span class="text-xs text-gray-400">{{ comment.author_email }}</span>
-              <span class="text-xs text-gray-400">{{ formatDate(comment.created_at) }}</span>
+              <span class="text-xs text-gray-400 dark:text-gray-500">{{ comment.author_email }}</span>
+              <span class="text-xs text-gray-400 dark:text-gray-500">{{ formatDate(comment.created_at) }}</span>
               <span class="text-xs px-2 py-0.5 rounded-full" :class="statusClass[comment.status]">
                 {{ statusLabel[comment.status] }}
               </span>
@@ -125,7 +125,7 @@ onMounted(fetchComments)
 
     <div v-if="total > 20" class="flex justify-center gap-2 mt-4">
       <button :disabled="page <= 1" class="btn-secondary disabled:opacity-40" @click="page--; fetchComments()">上一页</button>
-      <span class="px-4 py-2 text-sm text-gray-600">{{ page }} / {{ Math.ceil(total / 20) }}</span>
+      <span class="px-4 py-2 text-sm text-gray-600 dark:text-gray-400">{{ page }} / {{ Math.ceil(total / 20) }}</span>
       <button :disabled="page >= Math.ceil(total / 20)" class="btn-secondary disabled:opacity-40" @click="page++; fetchComments()">下一页</button>
     </div>
   </div>

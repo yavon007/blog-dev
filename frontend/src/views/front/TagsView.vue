@@ -31,7 +31,7 @@ function searchByTag(slug: string) {
         <span v-if="tag.post_count" class="ml-1 text-xs opacity-60">{{ tag.post_count }}</span>
       </button>
     </div>
-    <div v-if="tags.length === 0" class="text-center py-16 text-gray-500">
+    <div v-if="tags.length === 0" class="text-center py-16 text-gray-500 dark:text-gray-400">
       暂无标签
     </div>
   </div>
