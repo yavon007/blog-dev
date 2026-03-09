@@ -1,4 +1,4 @@
-.PHONY: help dev prod down logs ps build clean init-env
+.PHONY: help dev prod prod-force down logs ps build clean init-env
 
 COMPOSE = docker compose
 ENV_FILE = .env
@@ -18,9 +18,18 @@ dev: ## 启动开发环境（含数据库和缓存）
 	$(COMPOSE) up -d postgres redis
 	@echo "数据库和缓存已启动，运行 'cd backend && make run' 和 'cd frontend && pnpm dev'"
 
-prod: ## 启动生产环境（所有服务）
+prod: ## 启动生产环境（所有服务，强制重建容器）
 	@[ -f $(ENV_FILE) ] || { echo "错误：请先运行 'make init-env' 并配置 .env"; exit 1; }
-	$(COMPOSE) up -d --build
+	$(COMPOSE) up -d --build --force-recreate
+
+prod-app: ## 仅重建应用服务（backend/frontend），不动数据库
+	@[ -f $(ENV_FILE) ] || { echo "错误：请先运行 'make init-env' 并配置 .env"; exit 1; }
+	$(COMPOSE) up -d --build --force-recreate backend frontend
+
+prod-force: ## 强制无缓存重建（确保代码更新）
+	@[ -f $(ENV_FILE) ] || { echo "错误：请先运行 'make init-env' 并配置 .env"; exit 1; }
+	$(COMPOSE) build --no-cache
+	$(COMPOSE) up -d --force-recreate
 
 down: ## 停止所有服务
 	$(COMPOSE) down
