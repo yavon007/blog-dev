@@ -72,6 +72,7 @@ services:
     environment:
       APP_ENV: ${APP_ENV:-production}
       APP_PORT: "8080"
+      APP_BASE_URL: "${APP_BASE_URL:?APP_BASE_URL is required}"
       DATABASE_URL: "postgres://${POSTGRES_USER:-blog}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-blog}?sslmode=disable"
       REDIS_ADDR: "redis:6379"
       REDIS_PASSWORD: "${REDIS_PASSWORD:-}"

@@ -16,6 +16,7 @@ const navItems = [
   { to: '/admin/tags', label: '标签', icon: 'i-carbon-tag' },
   { to: '/admin/comments', label: '评论', icon: 'i-carbon-chat' },
   { to: '/admin/media', label: '媒体', icon: 'i-carbon-image' },
+  { to: '/admin/settings', label: '设置', icon: 'i-carbon-settings' },
 ]
 
 // 判断是否激活：仪表盘需要精确匹配，其他前缀匹配
