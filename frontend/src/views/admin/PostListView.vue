@@ -62,7 +62,7 @@ onMounted(fetchPosts)
         </thead>
         <tbody class="divide-y divide-gray-100 dark:divide-gray-700">
           <tr v-for="post in posts" :key="post.id" class="hover:bg-gray-50 dark:hover:bg-gray-700/30">
-            <td class="px-4 py-3 max-w-xs truncate font-medium">{{ post.title }}</td>
+            <td class="px-4 py-3 max-w-xs truncate font-medium text-gray-900 dark:text-gray-100">{{ post.title }}</td>
             <td class="px-4 py-3 text-gray-500 dark:text-gray-400 hidden md:table-cell">{{ post.category_name || '-' }}</td>
             <td class="px-4 py-3">
               <span

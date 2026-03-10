@@ -19,6 +19,8 @@ import (
 	commentscore "github.com/yavon007/blog-dev/backend/internal/modules/comments/core"
 	commentsrepo "github.com/yavon007/blog-dev/backend/internal/modules/comments/repository"
 	commentshttp "github.com/yavon007/blog-dev/backend/internal/modules/comments/transport/http"
+	feedcore "github.com/yavon007/blog-dev/backend/internal/modules/feed/core"
+	feedhttp "github.com/yavon007/blog-dev/backend/internal/modules/feed/transport/http"
 	mediacore "github.com/yavon007/blog-dev/backend/internal/modules/media/core"
 	mediarepo "github.com/yavon007/blog-dev/backend/internal/modules/media/repository"
 	mediahttp "github.com/yavon007/blog-dev/backend/internal/modules/media/transport/http"
@@ -26,6 +28,9 @@ import (
 	postscore "github.com/yavon007/blog-dev/backend/internal/modules/posts/core"
 	postsrepo "github.com/yavon007/blog-dev/backend/internal/modules/posts/repository"
 	postshttp "github.com/yavon007/blog-dev/backend/internal/modules/posts/transport/http"
+	seocore "github.com/yavon007/blog-dev/backend/internal/modules/seo/core"
+	seorepo "github.com/yavon007/blog-dev/backend/internal/modules/seo/repository"
+	seohttp "github.com/yavon007/blog-dev/backend/internal/modules/seo/transport/http"
 	taxonomycore "github.com/yavon007/blog-dev/backend/internal/modules/taxonomy/core"
 	taxonomyrepo "github.com/yavon007/blog-dev/backend/internal/modules/taxonomy/repository"
 	taxonomyhttp "github.com/yavon007/blog-dev/backend/internal/modules/taxonomy/transport/http"
@@ -106,6 +111,15 @@ func main() {
 	mediaSvc := mediacore.NewService(mediaRepo, mediaStorage, cfg.App.BaseURL)
 	mediaHandler := mediahttp.NewHandler(mediaSvc, log)
 
+	// Wire modules: seo
+	seoRepo := seorepo.NewPostgresRepo(db)
+	seoSvc := seocore.NewService(seoRepo, cfg.App.BaseURL)
+	seoHandler := seohttp.NewHandler(seoSvc, log)
+
+	// Wire modules: feed (reuse SEO repository for posts/settings)
+	feedSvc := feedcore.NewService(seoRepo, cfg.App.BaseURL)
+	feedHandler := feedhttp.NewHandler(feedSvc, log)
+
 	// Router
 	router := app.NewRouter(log, jwtMgr, cfg.App.AllowedOrigins, app.Handlers{
 		Auth:     authHandler,
@@ -113,6 +127,8 @@ func main() {
 		Taxonomy: taxonomyHandler,
 		Comments: commentsHandler,
 		Media:    mediaHandler,
+		SEO:      seoHandler,
+		Feed:     feedHandler,
 	})
 
 	// HTTP Server

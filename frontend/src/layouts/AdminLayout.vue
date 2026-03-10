@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { computed } from 'vue'
 import { RouterLink, RouterView, useRoute } from 'vue-router'
 import { useUserStore } from '@/store/user'
 import { useAppStore } from '@/store/app'
@@ -18,12 +19,12 @@ const navItems = [
 ]
 
 // 判断是否激活：仪表盘需要精确匹配，其他前缀匹配
-function isActive(item: { to: string }) {
+const isActive = computed(() => (item: { to: string }) => {
   if (item.to === '/admin') {
     return route.path === '/admin'
   }
   return route.path.startsWith(item.to)
-}
+})
 
 async function handleLogout() {
   try {

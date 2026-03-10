@@ -24,6 +24,7 @@ func (r *PostgresRepo) FindBySlug(ctx context.Context, slug string) (*core.Post,
 	const q = `
 		SELECT p.id, p.title, p.slug, COALESCE(p.summary, ''), p.content_md,
 		       COALESCE(p.content_html_cached, ''), COALESCE(p.cover_url, ''),
+		       COALESCE(p.seo_title, ''), COALESCE(p.seo_description, ''), COALESCE(p.og_image_url, ''),
 		       p.status, p.published_at, p.category_id,
 		       COALESCE(c.name, ''), p.author_id, p.created_at, p.updated_at
 		FROM posts p
@@ -42,6 +43,7 @@ func (r *PostgresRepo) FindByID(ctx context.Context, id int64) (*core.Post, erro
 	const q = `
 		SELECT p.id, p.title, p.slug, COALESCE(p.summary, ''), p.content_md,
 		       COALESCE(p.content_html_cached, ''), COALESCE(p.cover_url, ''),
+		       COALESCE(p.seo_title, ''), COALESCE(p.seo_description, ''), COALESCE(p.og_image_url, ''),
 		       p.status, p.published_at, p.category_id,
 		       COALESCE(c.name, ''), p.author_id, p.created_at, p.updated_at
 		FROM posts p
@@ -99,6 +101,7 @@ func (r *PostgresRepo) List(ctx context.Context, filter core.ListFilter, p pagin
 	listQ := fmt.Sprintf(`
 		SELECT p.id, p.title, p.slug, COALESCE(p.summary, ''), p.content_md,
 		       COALESCE(p.content_html_cached, ''), COALESCE(p.cover_url, ''),
+		       COALESCE(p.seo_title, ''), COALESCE(p.seo_description, ''), COALESCE(p.og_image_url, ''),
 		       p.status, p.published_at, p.category_id,
 		       COALESCE(c.name, ''), p.author_id, p.created_at, p.updated_at
 		FROM posts p
@@ -134,15 +137,16 @@ func (r *PostgresRepo) Create(ctx context.Context, req core.CreatePostRequest, a
 	}
 
 	const q = `
-		INSERT INTO posts (title, slug, summary, content_md, cover_url, status, published_at, category_id, author_id)
-		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+		INSERT INTO posts (title, slug, summary, content_md, cover_url, seo_title, seo_description, og_image_url, status, published_at, category_id, author_id)
+		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
 		RETURNING id, created_at, updated_at`
 
 	var id int64
 	var createdAt, updatedAt time.Time
 	err := r.db.QueryRow(ctx, q,
 		req.Title, req.Slug, req.Summary, req.ContentMD,
-		req.CoverURL, string(req.Status), publishedAt, req.CategoryID, authorID,
+		req.CoverURL, req.SEOTitle, req.SEODescription, req.OGImageURL,
+		string(req.Status), publishedAt, req.CategoryID, authorID,
 	).Scan(&id, &createdAt, &updatedAt)
 	if err != nil {
 		if strings.Contains(err.Error(), "duplicate key") {
@@ -164,11 +168,13 @@ func (r *PostgresRepo) Update(ctx context.Context, id int64, req core.UpdatePost
 
 	const q = `
 		UPDATE posts SET title=$1, slug=$2, summary=$3, content_md=$4, cover_url=$5,
-		                 status=$6, published_at=COALESCE($7, published_at), category_id=$8, updated_at=NOW()
-		WHERE id=$9`
+		                 seo_title=$6, seo_description=$7, og_image_url=$8,
+		                 status=$9, published_at=COALESCE($10, published_at), category_id=$11, updated_at=NOW()
+		WHERE id=$12`
 	_, err := r.db.Exec(ctx, q,
 		req.Title, req.Slug, req.Summary, req.ContentMD,
-		req.CoverURL, string(req.Status), publishedAt, req.CategoryID, id,
+		req.CoverURL, req.SEOTitle, req.SEODescription, req.OGImageURL,
+		string(req.Status), publishedAt, req.CategoryID, id,
 	)
 	if err != nil {
 		return nil, fmt.Errorf("update post: %w", err)
@@ -228,7 +234,8 @@ func scanPost(row scannable) (*core.Post, error) {
 	var p core.Post
 	err := row.Scan(
 		&p.ID, &p.Title, &p.Slug, &p.Summary, &p.ContentMD, &p.ContentHTMLCached,
-		&p.CoverURL, &p.Status, &p.PublishedAt, &p.CategoryID, &p.CategoryName,
+		&p.CoverURL, &p.SEOTitle, &p.SEODescription, &p.OGImageURL,
+		&p.Status, &p.PublishedAt, &p.CategoryID, &p.CategoryName,
 		&p.AuthorID, &p.CreatedAt, &p.UpdatedAt,
 	)
 	if err != nil {
@@ -277,6 +284,7 @@ func (r *PostgresRepo) ListByYearMonth(ctx context.Context, year, month int, p p
 	listQ := `
 		SELECT p.id, p.title, p.slug, COALESCE(p.summary, ''), p.content_md,
 		       COALESCE(p.content_html_cached, ''), COALESCE(p.cover_url, ''),
+		       COALESCE(p.seo_title, ''), COALESCE(p.seo_description, ''), COALESCE(p.og_image_url, ''),
 		       p.status, p.published_at, p.category_id,
 		       COALESCE(c.name, ''), p.author_id, p.created_at, p.updated_at
 		FROM posts p

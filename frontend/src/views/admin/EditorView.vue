@@ -18,6 +18,9 @@ const form = ref<CreatePostPayload>({
   summary: '',
   content_md: '',
   cover_url: '',
+  seo_title: '',
+  seo_description: '',
+  og_image_url: '',
   status: 'draft',
   category_id: null,
   tag_ids: [],
@@ -60,6 +63,9 @@ async function fetchData() {
       summary: post.summary,
       content_md: post.content_md,
       cover_url: post.cover_url,
+      seo_title: post.seo_title || '',
+      seo_description: post.seo_description || '',
+      og_image_url: post.og_image_url || '',
       status: post.status,
       category_id: post.category_id,
       tag_ids: post.tags?.map((t: { id: number }) => t.id) ?? [],
@@ -179,6 +185,29 @@ onMounted(fetchData)
               />
               <span class="text-sm">{{ tag.name }}</span>
             </label>
+          </div>
+        </div>
+
+        <!-- SEO 设置 -->
+        <div class="card p-4 space-y-3">
+          <h3 class="font-medium text-sm text-gray-600 dark:text-gray-400">SEO 设置</h3>
+          <div>
+            <label class="block text-xs text-gray-500 dark:text-gray-400 mb-1">SEO 标题</label>
+            <input v-model="form.seo_title" type="text" class="input-base text-sm" placeholder="默认使用文章标题" />
+          </div>
+          <div>
+            <label class="block text-xs text-gray-500 dark:text-gray-400 mb-1">SEO 描述</label>
+            <textarea
+              v-model="form.seo_description"
+              rows="2"
+              class="input-base resize-none text-sm"
+              placeholder="默认使用文章摘要"
+            />
+          </div>
+          <div>
+            <label class="block text-xs text-gray-500 dark:text-gray-400 mb-1">OG 图片</label>
+            <input v-model="form.og_image_url" type="url" class="input-base text-sm" placeholder="https://..." />
+            <img v-if="form.og_image_url" :src="form.og_image_url" alt="OG 预览" class="w-full h-32 object-cover rounded mt-2" />
           </div>
         </div>
       </div>

@@ -20,6 +20,9 @@ export interface Post {
     content_md: string
     content_html_cached: string
     cover_url: string
+    seo_title: string
+    seo_description: string
+    og_image_url: string
     status: 'draft' | 'published'
     published_at: string | null
     category_id: number | null
@@ -94,6 +97,9 @@ export interface CreatePostPayload {
     summary: string
     content_md: string
     cover_url: string
+    seo_title: string
+    seo_description: string
+    og_image_url: string
     status: 'draft' | 'published'
     category_id: number | null
     tag_ids: number[]

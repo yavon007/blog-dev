@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { useAppStore } from '@/store/app'
 import { RouterLink, RouterView } from 'vue-router'
+import RssButton from '@/components/front/RssButton.vue'
 
 const appStore = useAppStore()
 </script>
@@ -27,6 +28,7 @@ const appStore = useAppStore()
         </nav>
 
         <div class="flex items-center gap-3">
+          <RssButton />
           <!-- 主题切换 -->
           <button
             class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
@@ -55,6 +57,9 @@ const appStore = useAppStore()
     <!-- 页脚 -->
     <footer class="border-t border-gray-200 dark:border-gray-700 mt-16">
       <div class="max-w-4xl mx-auto px-4 py-8 text-center text-sm text-gray-500 dark:text-gray-400">
+        <div class="flex justify-center mb-4">
+          <RssButton />
+        </div>
         <p>© {{ new Date().getFullYear() }} Blog. Built with Vue 3 + Go.</p>
       </div>
     </footer>

@@ -17,6 +17,9 @@ type Post struct {
 	ContentMD         string     `json:"content_md"`
 	ContentHTMLCached string     `json:"content_html_cached"`
 	CoverURL          string     `json:"cover_url"`
+	SEOTitle          string     `json:"seo_title"`
+	SEODescription    string     `json:"seo_description"`
+	OGImageURL        string     `json:"og_image_url"`
 	Status            PostStatus `json:"status"`
 	PublishedAt       *time.Time `json:"published_at"`
 	CategoryID        *int64     `json:"category_id"`
@@ -34,25 +37,31 @@ type Tag struct {
 }
 
 type CreatePostRequest struct {
-	Title      string     `json:"title" binding:"required,max=255"`
-	Slug       string     `json:"slug" binding:"required,max=255"`
-	Summary    string     `json:"summary"`
-	ContentMD  string     `json:"content_md" binding:"required"`
-	CoverURL   string     `json:"cover_url"`
-	Status     PostStatus `json:"status" binding:"omitempty,oneof=draft published"`
-	CategoryID *int64     `json:"category_id"`
-	TagIDs     []int64    `json:"tag_ids"`
+	Title          string     `json:"title" binding:"required,max=255"`
+	Slug           string     `json:"slug" binding:"required,max=255"`
+	Summary        string     `json:"summary"`
+	ContentMD      string     `json:"content_md" binding:"required"`
+	CoverURL       string     `json:"cover_url"`
+	SEOTitle       string     `json:"seo_title" binding:"omitempty,max=255"`
+	SEODescription string     `json:"seo_description"`
+	OGImageURL     string     `json:"og_image_url" binding:"omitempty,max=512"`
+	Status         PostStatus `json:"status" binding:"omitempty,oneof=draft published"`
+	CategoryID     *int64     `json:"category_id"`
+	TagIDs         []int64    `json:"tag_ids"`
 }
 
 type UpdatePostRequest struct {
-	Title      string     `json:"title" binding:"required,max=255"`
-	Slug       string     `json:"slug" binding:"required,max=255"`
-	Summary    string     `json:"summary"`
-	ContentMD  string     `json:"content_md" binding:"required"`
-	CoverURL   string     `json:"cover_url"`
-	Status     PostStatus `json:"status" binding:"omitempty,oneof=draft published"`
-	CategoryID *int64     `json:"category_id"`
-	TagIDs     []int64    `json:"tag_ids"`
+	Title          string     `json:"title" binding:"required,max=255"`
+	Slug           string     `json:"slug" binding:"required,max=255"`
+	Summary        string     `json:"summary"`
+	ContentMD      string     `json:"content_md" binding:"required"`
+	CoverURL       string     `json:"cover_url"`
+	SEOTitle       string     `json:"seo_title" binding:"omitempty,max=255"`
+	SEODescription string     `json:"seo_description"`
+	OGImageURL     string     `json:"og_image_url" binding:"omitempty,max=512"`
+	Status         PostStatus `json:"status" binding:"omitempty,oneof=draft published"`
+	CategoryID     *int64     `json:"category_id"`
+	TagIDs         []int64    `json:"tag_ids"`
 }
 
 type UpdateStatusRequest struct {

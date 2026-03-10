@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted, watch } from 'vue'
 import { RouterLink, useRoute, useRouter } from 'vue-router'
+import { useHead } from '@unhead/vue'
 import { postApi } from '@/api/post'
 import { categoryApi } from '@/api/taxonomy'
 import type { Post, Category } from '@/types'
@@ -16,6 +17,13 @@ const loading = ref(false)
 
 const query = ref((route.query.q as string) ?? '')
 const selectedCategory = ref((route.query.category as string) ?? '')
+
+useHead({
+  title: '首页',
+  meta: [
+    { name: 'description', content: '博客首页' }
+  ]
+})
 
 async function fetchPosts() {
   loading.value = true

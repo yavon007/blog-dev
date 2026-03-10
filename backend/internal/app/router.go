@@ -6,8 +6,10 @@ import (
 	"github.com/gin-gonic/gin"
 	authhttp "github.com/yavon007/blog-dev/backend/internal/modules/auth/transport/http"
 	commentshttp "github.com/yavon007/blog-dev/backend/internal/modules/comments/transport/http"
+	feedhttp "github.com/yavon007/blog-dev/backend/internal/modules/feed/transport/http"
 	mediahttp "github.com/yavon007/blog-dev/backend/internal/modules/media/transport/http"
 	postshttp "github.com/yavon007/blog-dev/backend/internal/modules/posts/transport/http"
+	seohttp "github.com/yavon007/blog-dev/backend/internal/modules/seo/transport/http"
 	taxonomyhttp "github.com/yavon007/blog-dev/backend/internal/modules/taxonomy/transport/http"
 	"github.com/yavon007/blog-dev/backend/internal/pkg/middleware"
 	"github.com/yavon007/blog-dev/backend/internal/platform/auth"
@@ -20,6 +22,8 @@ type Handlers struct {
 	Taxonomy *taxonomyhttp.Handler
 	Comments *commentshttp.Handler
 	Media    *mediahttp.Handler
+	SEO      *seohttp.Handler
+	Feed     *feedhttp.Handler
 }
 
 func NewRouter(
@@ -53,6 +57,8 @@ func NewRouter(
 
 	// Static files for uploads
 	r.Static("/uploads", "./uploads")
+	h.SEO.RegisterSystem(r)
+	h.Feed.RegisterSystem(r)
 
 	// Public API
 	public := r.Group("/api/v1")
@@ -61,6 +67,7 @@ func NewRouter(
 		h.Taxonomy.RegisterPublic(public)
 		h.Comments.RegisterPublic(public)
 		h.Auth.RegisterPublic(public) // login, refresh
+		h.SEO.RegisterPublic(public)
 	}
 
 	// Admin API (JWT protected)
@@ -72,6 +79,7 @@ func NewRouter(
 		h.Taxonomy.RegisterAdmin(admin)
 		h.Comments.RegisterAdmin(admin)
 		h.Media.RegisterAdmin(admin)
+		h.SEO.RegisterAdmin(admin)
 	}
 
 	return r

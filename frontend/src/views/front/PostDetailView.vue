@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { useHead } from '@unhead/vue'
 import { postApi } from '@/api/post'
 import { commentApi } from '@/api/comment'
 import type { Post, Comment } from '@/types'
@@ -21,6 +22,16 @@ async function fetchPost() {
   try {
     const res = await postApi.getBySlug(route.params.slug as string) as unknown as { data: Post }
     post.value = res.data
+    useHead({
+      title: post.value.seo_title || post.value.title,
+      meta: [
+        { name: 'description', content: post.value.seo_description || post.value.summary },
+        { property: 'og:title', content: post.value.seo_title || post.value.title },
+        { property: 'og:description', content: post.value.seo_description || post.value.summary },
+        { property: 'og:image', content: post.value.og_image_url || post.value.cover_url || '' },
+        { property: 'og:type', content: 'article' },
+      ]
+    })
     fetchComments()
   } catch {
     router.push('/404')
