@@ -67,6 +67,8 @@ services:
       dockerfile: Dockerfile
     ports:
       - "${BACKEND_PORT:-8080}:8080"
+    volumes:
+      - uploads:/app/uploads
     environment:
       APP_ENV: ${APP_ENV:-production}
       APP_PORT: "8080"
@@ -120,6 +122,8 @@ volumes:
   pgdata:
     driver: local
   redisdata:
+    driver: local
+  uploads:
     driver: local
 
 networks:

@@ -21,6 +21,9 @@ RUN apk add --no-cache ca-certificates tzdata && \
 
 WORKDIR /app
 
+# 创建 uploads 目录并授权给 appuser
+RUN mkdir -p /app/uploads && chown -R appuser:appgroup /app/uploads
+
 COPY --from=builder /app/bin/api .
 
 # 以非 root 用户运行
